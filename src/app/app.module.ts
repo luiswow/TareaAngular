@@ -2,6 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { DestinosApiClient} from './models/destinosApiClient';
 import { AppRoutingModule } from './app-routing.module';
+import { RouterModule, Routes} from '@angular/router';
+
 import { AppComponent } from './app.component';
 import { DestinoViajeComponent } from './destino-viaje/destino-viaje.component';
 import { ListaDestinosComponent } from './lista-destinos/lista-destinos.component';
@@ -13,18 +15,24 @@ import {ActionReducerMap} from '@ngrx/store';
 import {StoreModule as NgRxStoreModule} from '@ngrx/store'
 import {EffectsModule  } from '@ngrx/effects'
 
-// redux init
+const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch:'full'},
+  { path: 'home', component: ListaDestinosComponent},
+  { path: 'destino', component: DestinoDetalleComponent},
+];
+
 
 export interface AppState {
   destinos: DestinosViajesState;
-  
 }
-const reducers: ActionReducerMap<AppState> ={
+
+const reducers: ActionReducerMap<AppState> = {
   destinos: reducerDestinosViajes
 };
-let reducersInitialState = {
+
+const reducersInitialState = {
   destinos: intializeDestinosViajesState()
-}
+};
 
 
 @NgModule({
@@ -33,20 +41,26 @@ let reducersInitialState = {
     DestinoViajeComponent,
     ListaDestinosComponent,
     DestinoDetalleComponent,
-    FormDestinoViajeComponent,
-    NgRxStoreModule
+    FormDestinoViajeComponent
   ],
   imports: [
-    
     BrowserModule,
-    AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    NgRxStoreModule.forRoot(reducers, {initialState: reducersInitialState}),
-    EffectsModule.forRoot([DestinosViajesEffects])
+    RouterModule.forRoot(routes),
+    NgRxStoreModule.forRoot(reducers, { initialState: reducersInitialState,
+      runtimeChecks:{
 
+        strictStateImmutability: false,
+        
+        strictActionImmutability: false,
+        
+        } }),
+    EffectsModule.forRoot([DestinosViajesEffects]),
+  ], 
+  providers: [
+    DestinosApiClient
   ],
-  providers: [DestinosApiClient],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
